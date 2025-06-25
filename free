@@ -1,0 +1,67 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Proteção básica pra evitar que exploiters removam a GUI facilmente
+local function createAnnoyingScreen()
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "ExploitPunishGui"
+	screenGui.ResetOnSpawn = false
+	screenGui.IgnoreGuiInset = true
+	screenGui.DisplayOrder = 999999
+	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+
+	-- Tela colorida
+	local background = Instance.new("Frame")
+	background.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho
+	background.Size = UDim2.new(1, 0, 1, 0)
+	background.Position = UDim2.new(0, 0, 0, 0)
+	background.BorderSizePixel = 0
+	background.ZIndex = 10
+	background.Parent = screenGui
+
+	-- Texto provocativo
+	local label = Instance.new("TextLabel")
+	label.Text = "YOU ARE AN IDIOT!\nSTOP HACKING!"
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.Position = UDim2.new(0, 0, 0, 0)
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBlack
+	label.TextStrokeTransparency = 0
+	label.ZIndex = 11
+	label.Parent = screenGui
+
+	-- Tenta impedir a remoção
+	screenGui.AncestryChanged:Connect(function()
+		if not screenGui:IsDescendantOf(player:FindFirstChild("PlayerGui")) then
+			screenGui.Parent = player:FindFirstChild("PlayerGui")
+		end
+	end)
+end
+
+-- Função que tenta bugar o exploiter (fica resetando o personagem)
+local function startMadness()
+	local char = player.Character or player.CharacterAdded:Wait()
+
+	for i = 1, 10 do
+		task.spawn(function()
+			while true do
+				if char:FindFirstChild("Humanoid") then
+					char.Humanoid.Health = 0
+				end
+				task.wait(0.5)
+			end
+		end)
+	end
+end
+
+-- Executar punições
+createAnnoyingScreen()
+startMadness()
+
+-- Após 10 segundos, kicka o jogador
+task.delay(10, function()
+	player:Kick("Stop hacking, idiot.")
+end)
